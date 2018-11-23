@@ -36,6 +36,24 @@
 #include <osgGA/GUIEventHandler>
 
 #include <map>
+#include <ros/ros.h>
+
+class GroundTruthData
+{
+public:
+  int x;
+  int y;
+  int width;
+  int height;
+  GroundTruthData()
+  {
+	  x = 0;
+	  y = 0;
+	  width  =0;
+	  height =0;
+
+  }
+};
 
 namespace osgOcean
 {
@@ -51,6 +69,9 @@ namespace osgOcean
 
     private:
         osg::ref_ptr<OceanTechnique> _oceanSurface;
+        std::vector<osg::Node*> _floatingObjects;
+		std::vector<double> _floatingObjectsHeight;
+		GroundTruthData* groundTruthData;
 
         bool _isDirty;
 
@@ -64,6 +85,12 @@ namespace osgOcean
         bool _enableUnderwaterScattering;
         bool _enableDefaultShader;
         bool _enableHeightmap;
+        bool _enableSave;
+        bool _enableObstacleDetection;
+        bool _enable_gt_shader;
+        std::string _obstacleDetectionPath;
+        std::string _obstacleName;
+        ros::Time last_ros_time;
 
         osg::Vec2s _reflectionTexSize;
         osg::Vec2s _refractionTexSize;
@@ -304,6 +331,10 @@ namespace osgOcean
         /// for the given view.
         void enableRTTEffectsForView(osg::View* view, bool enable);
 
+        void enable_gt_shader(bool enable){
+        	_enable_gt_shader=enable;
+        	_oceanSurface->enable_gt_shader(enable);
+        }
 
         /// Get the list of views where RTT effects (reflection, refraction,
         /// height map) are disabled (enabled for all other views).
@@ -391,6 +422,18 @@ namespace osgOcean
         /// Enable underwater God Rays.
         inline void enableGodRays( bool enable ){
             _enableGodRays = enable;
+            _isDirty = true;
+        }
+        
+		inline void enableSave( bool enable ){
+            _enableSave = enable;
+            _isDirty = true;
+        }
+        
+        inline void enableObstacleDetection( bool enable, std::string path, std::string obstacleName){
+            _enableObstacleDetection = enable;
+            _obstacleDetectionPath = path;
+            _obstacleName = obstacleName;
             _isDirty = true;
         }
 
@@ -773,6 +816,18 @@ namespace osgOcean
                 _eventHandler = new EventHandler(this);
             return _eventHandler.get();
         }
+        
+        void prepareBoatsToReflection();
+		void returnBoatsAfterReflection();
+		void saveImage(osg::Camera* currentCamera);
+		void saveDetectedImage(osg::Camera* currentCamera);
+		void processGroup( osg::Group* group, osg::Matrix MVPW, double height);
+        void processGeode( osg::Geode* geode, osg::Matrix MVPW, double height);
+        float minX;
+        float maxX;
+        float minY;
+		float maxY;
+		unsigned int frame;
 
     private:
         osg::Texture2D* createTexture2D( const osg::Vec2s& size, GLint format );

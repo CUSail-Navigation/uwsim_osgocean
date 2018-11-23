@@ -34,6 +34,10 @@ namespace osgOcean
         virtual bool isSameKindAs(const osg::Object* obj) const { return dynamic_cast<const OceanTechnique*>(obj) != 0; }
 
         virtual void build( void );
+        
+        virtual void enable_gt_shader(bool enable){
+        
+        }
 
         virtual void stopAnimation( void ){
             _isAnimating = false;

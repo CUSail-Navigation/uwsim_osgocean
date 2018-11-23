@@ -45,6 +45,8 @@ namespace osgOcean
 
         std::vector< std::vector<OceanTile> > _mipmapData;                      /**< Wave tile data. */
         std::vector< std::vector< osg::ref_ptr<MipmapGeometry> > > _mipmapGeom;  /**< Geometry tiles. */
+        
+        bool _enable_gt_shader;
 
     public:
         FFTOceanSurface(unsigned int FFTGridSize = 64,
@@ -85,6 +87,11 @@ namespace osgOcean
         * Forces stateset rebuid.
         */
         void build( void );
+        
+        void enable_gt_shader(bool enable){
+        std::cerr<<"\n ---\n ---\n--- enable: "<<enable<<"\n";
+        	_enable_gt_shader=enable;
+        }
 
     private:
         /**
@@ -182,6 +189,8 @@ namespace osgOcean
         * @return NULL if shader files were not found
         */
         osg::Program* createShader(void);
+        
+        osg::Program* createGTShader(void);
     };
 
 }// namespace

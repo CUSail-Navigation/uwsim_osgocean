@@ -137,6 +137,9 @@ void FFTOceanSurface::initStateSet( void )
 
     osg::ref_ptr<osg::Program> program = createShader();
         
+    if (_enable_gt_shader)
+    	program = createGTShader();
+
     if(program.valid())
         _stateset->setAttributeAndModes( program.get(), osg::StateAttribute::ON );
 
@@ -1035,6 +1038,7 @@ osg::Vec3f FFTOceanSurface::computeNoiseCoords(float noiseSize, const osg::Vec2f
 
 #include <osgOcean/shaders/osgOcean_ocean_surface_vert.inl>
 #include <osgOcean/shaders/osgOcean_ocean_surface_frag.inl>
+#include <osgOcean/shaders/osgOcean_ocean_surface_frag_gt.inl>
 
 osg::Program* FFTOceanSurface::createShader(void)
 {
@@ -1045,6 +1049,19 @@ osg::Program* FFTOceanSurface::createShader(void)
         ShaderManager::instance().createProgram("ocean_surface", 
                                                 osgOcean_ocean_surface_vert_file, osgOcean_ocean_surface_frag_file, 
                                                 osgOcean_ocean_surface_vert,      osgOcean_ocean_surface_frag);
+
+    return program;
+}
+
+osg::Program* FFTOceanSurface::createGTShader(void)
+{
+    static const char osgOcean_ocean_surface_vert_file2[] = "osgOcean_ocean_surface.vert";
+    static const char osgOcean_ocean_surface_frag_file2[] = "osgOcean_ocean_surface.frag";
+
+    osg::Program* program =
+        ShaderManager::instance().createProgram("ocean_surface",
+                                                osgOcean_ocean_surface_vert_file2, osgOcean_ocean_surface_frag_file2,
+                                                osgOcean_ocean_surface_vert,      osgOcean_ocean_surface_frag_gt);
 
     return program;
 }
