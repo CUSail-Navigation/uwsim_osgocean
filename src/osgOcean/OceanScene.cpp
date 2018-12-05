@@ -441,6 +441,21 @@ void OceanScene::init( void )
             _reflectionClipNode->addClipPlane( reflClipPlane );
 
             addChild( _reflectionClipNode.get() );
+            for (unsigned int i = 0; i< getNumChildren(); i++)
+			{
+				std::cerr<<"\n child["<<i<<"]: "<<getChild(i)->getName();
+				if (getChild(i)->getName().compare("localizedWorld")==0)
+				{
+					osg::Node* localizedWorld = getChild(i);
+					for (unsigned int j = 0; j< localizedWorld->asGroup()->getNumChildren(); j++)
+					{
+						std::cerr<<"\n child["<<i<<"]: "<<localizedWorld->asGroup()->getChild(j)->getName()<<", mask: "<<localizedWorld->asGroup()->getChild(j)->getNodeMask();
+						_floatingObjects.push_back(localizedWorld->asGroup()->getChild(j));
+						_floatingObjectsHeight.push_back(0.0);
+					}
+					break;
+				}
+			}
         }
 
         if( _enableGodRays )
